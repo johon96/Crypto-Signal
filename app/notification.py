@@ -197,6 +197,7 @@ class Notifier(IndicatorUtils):
 
             if x == nb_conditions and x != 0:
                 new_message['status'] = condition['label']
+                self.notify_slack([new_message], None)
                 self.notify_discord([new_message])
                 self.notify_webhook([new_message], None)
                 self.notify_telegram([new_message], None)
@@ -216,7 +217,7 @@ class Notifier(IndicatorUtils):
                                  market_pair, candle_period)
                 self.logger.exception(e)
 
-        # self.notify_slack(new_analysis)
+        self.notify_slack(messages, chart_file)
         self.notify_discord(messages)
         self.notify_webhook(messages, chart_file)
         # self.notify_twilio(new_analysis)
@@ -242,7 +243,7 @@ class Notifier(IndicatorUtils):
 
             self.discord_client.notify(formatted_message.strip())
 
-    def notify_slack(self, new_analysis):
+    def notify_slack(self, messages, chart_file):
         """Send a notification via the slack notifier
 
         Args:
@@ -250,13 +251,14 @@ class Notifier(IndicatorUtils):
         """
 
         if self.slack_configured:
-            message = self._indicator_message_templater(
-                new_analysis,
-                self.notifier_config['slack']['optional']['template']
-            )
-            if message.strip():
-                self.slack_client.notify(message)
+            message_template = Template(
+                self.notifier_config['slack']['optional']['template'])
 
+            for message in messages:
+                formatted_message = message_template.render(message)
+
+                self.slack_client.notify(formatted_message.strip())
+    
     def notify_twilio(self, new_analysis):
         """Send a notification via the twilio notifier
 
