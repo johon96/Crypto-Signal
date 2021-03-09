@@ -1,0 +1,147 @@
+# Copy this file to config.yml to get started and then add your own configuration.
+# Full documentation here: https://github.com/CryptoSignal/crypto-signal/blob/master/docs/config.md
+
+settings:
+  log_level: INFO
+  update_interval: 300
+  timezone: America/Los_Angeles
+  market_pairs:
+    - BTC/USDT
+    - ETH/USDT
+
+exchanges:
+  binance:
+    required:
+      enabled: true
+
+indicators:
+    rsi:
+        - enabled: true
+          alert_enabled: true
+          alert_frequency: once
+          signal:
+            - rsi
+          hot: 30
+          cold: 70
+          candle_period: 1h
+          period_count: 50
+        - enabled: true
+          alert_enabled: true
+          alert_frequency: once
+          signal:
+            - rsi
+          hot: 30
+          cold: 70
+          candle_period: 15m
+          period_count: 14
+    stoch_rsi:
+        - enabled: true
+          alert_enabled: false
+          alert_frequency: once
+          signal:
+            - stoch_rsi
+          hot: 20
+          cold: 80
+          candle_period: 5m
+          period_count: 14
+    momentum:
+        - enabled: true
+          alert_enabled: false
+          alert_frequency: once
+          signal:
+            - momentum
+          hot: 0
+          cold: 0
+          candle_period: 1d
+          period_count: 10
+        - enabled: true
+          alert_enabled: false
+          alert_frequency: once
+          signal:
+            - momentum
+          hot: 0
+          cold: 0
+          candle_period: 1h
+          period_count: 12
+    macd:
+        - enabled: true
+          alert_enabled: true
+          alert_frequency: once
+          signal:
+            - macdhist
+          hot: 0
+          cold: 0
+          candle_period: 1h
+        - enabled: true
+          alert_enabled: true
+          alert_frequency: once
+          signal:
+            - macdhist
+          hot: 0
+          cold: 0
+          candle_period: 15m
+
+informants:
+    vwap:
+        - enabled: true
+          signal:
+            - vwap
+          candle_period: 1h
+          period_count: 13
+    ohlcv:
+        - enabled: true
+          signal:
+            - close
+          candle_period: 1h
+          period_count: 1
+    ema:
+       - enabled: true
+          signal:
+            - ema_20
+          candle_period: 1h
+          period_count: 20
+        - enabled: true
+          signal:
+            - ema_50
+          candle_period: 1h
+          period_count: 50
+        - enabled: true
+          signal:
+            - ema_200
+          candle_period: 1h
+          period_count: 200
+crossovers:
+  ema_crossover:
+        - enabled: true
+          alert_enabled: true
+          alert_frequency: once
+          key_indicator: ema
+          key_indicator_index: 1
+          key_indicator_type: informants
+          key_signal: ema_50
+          crossed_indicator: ema
+          crossed_indicator_index: 2
+          crossed_indicator_type: informants
+          crossed_signal: ema_200
+        - enabled: true
+          alert_enabled: true
+          alert_frequency: once
+          key_indicator: ema
+          key_indicator_index: 0
+          key_indicator_type: informants
+          key_signal: ema_50
+          crossed_indicator: ema
+          crossed_indicator_index: 2
+          crossed_indicator_type: informants
+          crossed_signal: ema_200
+notifiers:
+    stdout:
+        required:
+            enable: true
+        optional:
+            template: "[{{analysis.config.candle_period}}] {{exchange}}-{{market}}-{{indicator}}-{{indicator_number}} is {{status}}! {{values}} {{ '\n' -}}"
+    slack:
+      required:
+        webhook: https://hooks.slack.com/services/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
+      optional:
+        template: "<!here> [{{analysis.config.candle_period}}] {{market}} {{indicator}} is {{status}}! {{values}} {{ '\n' -}}"
